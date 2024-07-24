@@ -3,37 +3,20 @@ package org.kaib.discover.maven;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvBindByPosition;
-
 public class ReportDependency {
 	
-//	@CsvBindByName(column = "Artifact Id", required = false)
-//	@CsvBindByPosition(position = 5)
 	private String artifactId;
 	
-//	@CsvBindByName(column = "Group Id", required = false)
-//    @CsvBindByPosition(position = 4)
 	private String groupId;
 	
-//	@CsvBindByName(column = "Last Committer", required = true)
-//	@CsvBindByPosition(position = 2)
 	private String lastCommitter;
 	
-//	@CsvBindByName(column = "Path", required = true)
-//	@CsvBindByPosition(position = 3)
 	private String path;
 	
-//    @CsvBindByName(column = "Repository Name", required = true)
-//    @CsvBindByPosition(position = 0, required = true)
 	private String repoName;
     
-//    @CsvBindByName(column = "Repository Owner", required = true)
-//    @CsvBindByPosition(position = 1)
 	private String repoOwner;
     
-//	@CsvBindByName(column = "Version", required = false)
-//	@CsvBindByPosition(position = 6)
 	private String version;
 
 	public ReportDependency() {

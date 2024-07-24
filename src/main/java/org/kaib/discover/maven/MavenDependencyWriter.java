@@ -2,25 +2,25 @@ package org.kaib.discover.maven;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.kaib.discover.maven.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class MavenDependencyWriter {
 
 	Logger LOG = LoggerFactory.getLogger(MavenDependencyWriter.class);
 
 	private Configuration configuration;
+
+	private static final String[] CSV_HEADER = { "Repository Name", "Repository Owner", "Last Committer", "Path",
+			"Group Id", "Artifact Id", "Version", "isTransitive"};
 
 	public MavenDependencyWriter(Configuration theConfiguration) {
 
@@ -35,30 +35,24 @@ public class MavenDependencyWriter {
 		final String outputPath = buildOutputPath();
 		LOG.info("Writing {} dependencies to: {}", foundDependencies.size(), outputPath);
 
-        Map<String, String> columnMapping = new HashMap<>();
-        columnMapping.put("artifactId", "Artifact Id");
-        columnMapping.put("groupId", "Group Id");
-        columnMapping.put("lastCommitter", "Last Committer");
-        columnMapping.put("path", "Path");
-        columnMapping.put("repoName", "Repository Name");
-        columnMapping.put("Repository Owner", "repoOwner");
-        columnMapping.put("version", "Version");
-
-        HeaderColumnNameTranslateMappingStrategy<ReportDependency> strategy = new HeaderColumnNameTranslateMappingStrategy<>();
-        strategy.setType(ReportDependency.class);
-        strategy.setColumnMapping(columnMapping);
-
 		final List<ReportDependency> reportDependencies = DependencyMapper.map(foundDependencies);
-		try (CSVWriter writer = new CSVWriter(new FileWriter(outputPath))) {
-
-			// @formatter:off
-			new StatefulBeanToCsvBuilder<ReportDependency>(writer)
-				.withApplyQuotesToAll(true)
-				.withMappingStrategy(strategy)
-				.build()
-				.write(reportDependencies);
-			// @formatter:on
+		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(CSV_HEADER).build();
+		try (FileWriter writer = new FileWriter(outputPath);
+				CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+			for (ReportDependency reportDependency : reportDependencies) {
+				csvPrinter.printRecord(reportDependency.getRepoName(), 
+						reportDependency.getRepoOwner(),
+						reportDependency.getLastCommitter(), 
+						reportDependency.getPath(),
+						reportDependency.getGroupId(),
+						reportDependency.getArtifactId(),
+						reportDependency.getVersion());
+			}
+		} catch (IOException e) {
+			LOG.error("Failed to write dependencies to: {}", outputPath, e);
+			throw e;
 		}
+
 	}
 
 	private String buildOutputPath() {

@@ -23,7 +23,7 @@ public class MavenDependencySearchDriver {
 			final MavenRepositoryFilter filter = new MavenRepositoryFilter(config);
 			final Map<String, List<GHContent>> filtered = filter.filter();
 			
-			final MavenDependencyFinder finder = new MavenDependencyFinder(config);
+			final MavenDependencyFinder finder = new MavenDependencyFinder();
 			final List<FoundDependency> foundDependencies = finder.find(filtered);
 			
 			final MavenDependencyWriter writer = new MavenDependencyWriter(config);

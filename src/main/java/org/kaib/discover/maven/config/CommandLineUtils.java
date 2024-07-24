@@ -239,6 +239,12 @@ public class CommandLineUtils {
 
 		// Optional properties
 		builder.withRepoSearchQuery(properties.getProperty("repoSearchQuery"));
+		
+		// Singleton properties.
+		org.kaib.discover.maven.Configuration.INSTANCE.loadConfiguration(properties);
+		
+
+		
 
 	}
 }
