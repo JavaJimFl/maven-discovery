@@ -3,6 +3,8 @@ package org.kaib.discover.maven;
 public enum ConfigKey {
 
 	BASE_REPO_URL("baseRepoUrl"),
+	
+	GROUP_ID_PATTERN("groupIdPattern"),
 
 	MAVE_HOME("mavenHome"),
 	

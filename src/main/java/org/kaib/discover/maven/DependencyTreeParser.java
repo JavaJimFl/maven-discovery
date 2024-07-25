@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +14,13 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +29,27 @@ import org.w3c.dom.Element;
  * Note that the verbose
  */
 public class DependencyTreeParser {
+	
+	public static void main(String[] args) throws TransformerException, XPathExpressionException {
+		Path dependencyTree = Paths
+				.get("C:\\temp\\workspace\\apache\\airavata-sandbox\\gsoc2022\\smilesdb\\Server\\dependencies.txt");
+
+		final Document document = DependencyTreeParser.parse(dependencyTree);
+		
+		// Here you can write the DOM to an XML file or process it as needed
+		// For example, using a transformer to print it
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(2));
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+		DOMSource source = new DOMSource(document);
+		StreamResult result = new StreamResult(System.out);
+		transformer.transform(source, result);
+		
+
+
+	}
 
 	public static Document parse(final Path textDependencyTreePath) {
 
@@ -35,13 +65,7 @@ public class DependencyTreeParser {
 			Queue<String> lines = enqueueDependencies(textDependencyTreePath);
 			parseLines(lines, doc, rootElement, 0);
 
-			// Here you can write the DOM to an XML file or process it as needed
-			// For example, using a transformer to print it
-//			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//			Transformer transformer = transformerFactory.newTransformer();
-//			DOMSource source = new DOMSource(doc);
-//			StreamResult result = new StreamResult(System.out);
-//			transformer.transform(source, result);
+
 
 		} catch (ParserConfigurationException e) {
 			throw new ParseException("Parser not configured correctly", e);
@@ -95,15 +119,15 @@ public class DependencyTreeParser {
 				final String packaging = matcher.group(4);
 				final String version = matcher.group(5);
 				// This will be null if not present
-				final String classifier = matcher.group(6);
+				final String scope = matcher.group(6);
 
 				Element dependency = doc.createElement("dependency");
 				dependency.setAttribute("groupId", groupId);
 				dependency.setAttribute("artifactId", artifactId);
 				dependency.setAttribute("packaging", packaging);
 				dependency.setAttribute("version", version);
-				if (classifier != null) {
-					dependency.setAttribute("classifier", classifier);
+				if (scope != null) {
+					dependency.setAttribute("scope", scope);
 				}
 
 				if (newDepth >= depth) {
